@@ -22,6 +22,7 @@ const providerConfig = {
     },
     google: {
         icon: '/src/assets/icons/google.svg',
+        className: 'border-gray-300', // 구글은 기본 outline 스타일을 사용
         label: '구글 로그인',
     },
 };
