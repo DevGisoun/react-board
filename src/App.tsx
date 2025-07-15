@@ -5,6 +5,7 @@ import LoginPage from './pages/Login';
 import { ThemeProvider } from './components/theme-provider';
 import NavBar from './components/NavBar';
 import TopicsPage from './pages/Topics';
+import NewTopicPage from './pages/NewTopic';
 
 function App() {
     return (
@@ -18,6 +19,10 @@ function App() {
                             <Route path="/sign-up" element={<SignUpPage />} />
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/topics" element={<TopicsPage />} />
+                            <Route
+                                path="/topics/new-topic"
+                                element={<NewTopicPage />}
+                            />
                         </Routes>
                     </BrowserRouter>
                 </div>
