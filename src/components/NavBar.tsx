@@ -2,7 +2,7 @@ function NavBar() {
     return (
         <>
             <header className="w-full flex items-center justify-center top-0 z-20 bg-neutral-900 fixed">
-                <div className="w-[80%] h-14 flex flex-row justify-between items-center text-sm font-bold">
+                <div className="w-[1328px] h-14 flex flex-row justify-between items-center text-sm font-bold">
                     {/* 로고 ~ 밍거진 */}
                     <div className="flex flex-row items-center gap-4">
                         <a href="/">
