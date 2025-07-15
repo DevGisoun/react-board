@@ -4,6 +4,7 @@ import SignUpPage from './pages/SignUp';
 import LoginPage from './pages/Login';
 import { ThemeProvider } from './components/theme-provider';
 import NavBar from './components/NavBar';
+import TopicsPage from './pages/Topics';
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                             <Route path="/" element={<HomePage />} />
                             <Route path="/sign-up" element={<SignUpPage />} />
                             <Route path="/login" element={<LoginPage />} />
+                            <Route path="/topics" element={<TopicsPage />} />
                         </Routes>
                     </BrowserRouter>
                 </div>

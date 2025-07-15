@@ -15,7 +15,7 @@ function NavBar() {
                         <a href="">클래스</a>
                         <a href="">배움 노트</a>
                         <div className="inline-block h-3 min-h-[1em] w-0.5 bg-neutral-800"></div>
-                        <a href="">토픽 인사이트</a>
+                        <a href="/topics">토픽 인사이트</a>
                         <div className="inline-block h-3 min-h-[1em] w-0.5 bg-neutral-800"></div>
                         <a href="">밍랩</a>
                         <a href="">밍고 스테이지</a>
