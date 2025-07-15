@@ -6,6 +6,7 @@ import { ThemeProvider } from './components/theme-provider';
 import NavBar from './components/NavBar';
 import TopicsPage from './pages/Topics';
 import NewTopicPage from './pages/NewTopic';
+import { Toaster } from './components/ui/sonner';
 
 function App() {
     return (
@@ -26,6 +27,7 @@ function App() {
                         </Routes>
                     </BrowserRouter>
                 </div>
+                <Toaster />
             </ThemeProvider>
         </>
     );

@@ -10,8 +10,67 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import supabase from '@/lib/supabase';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
+
+const formSchema = z.object({
+    email: z.email({
+        message: '올바른 형식의 이메일 주소를 입력해주세요.',
+    }),
+    password: z.string().min(8, {
+        message: '비밀번호는 최소 8자 이상이어야 합니다.',
+    }),
+});
 
 function LoginPage() {
+    const navigate = useNavigate();
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+    });
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+
+    const handleToggle = () => setShowPassword((prev) => !prev);
+
+    const handleSignIn = async (values: z.infer<typeof formSchema>) => {
+        const email = values.email;
+        const password = values.password;
+
+        try {
+            const { data } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (data.user) {
+                navigate('/');
+            } else {
+                toast('사용자 정보를 불러올 수 없습니다.');
+            }
+        } catch (error: any) {
+            console.error(error.message);
+            throw new Error('로그인에 실패하였습니다.');
+        }
+    };
+
     return (
         <>
             <div className="w-full h-full flex flex-col items-center justify-center pt-10">
@@ -62,59 +121,104 @@ function LoginPage() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <form>
-                            <div className="flex flex-col gap-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">이메일</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="이메일을 입력하세요."
-                                        required
-                                    />
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit(handleSignIn)}
+                            className="flex flex-col gap-3"
+                        >
+                            <CardContent>
+                                <div className="flex flex-col gap-4">
+                                    <div className="grid gap-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        이메일
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            placeholder="이메일을 입력하세요."
+                                                            {...field}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="password"
+                                            render={({ field }) => (
+                                                <FormItem className="relative">
+                                                    <div className="w-full flex items-center justify-between">
+                                                        <FormLabel>
+                                                            비밀번호
+                                                        </FormLabel>
+                                                        <Link
+                                                            to={
+                                                                '/sign-in/credentials'
+                                                            }
+                                                            className="text-sm underline"
+                                                        >
+                                                            비밀번호를
+                                                            잊으셨나요?
+                                                        </Link>
+                                                    </div>
+                                                    <FormControl>
+                                                        <Input
+                                                            type={
+                                                                showPassword
+                                                                    ? 'text'
+                                                                    : 'password'
+                                                            }
+                                                            placeholder="비밀번호를 입력하세요."
+                                                            {...field}
+                                                        />
+                                                    </FormControl>
+                                                    <Button
+                                                        type="button"
+                                                        size={'icon'}
+                                                        className="absolute top-7 right-1 bg-transparent hover:bg-transparent"
+                                                        onClick={handleToggle}
+                                                    >
+                                                        {showPassword ? (
+                                                            <Eye className="text-muted-foreground" />
+                                                        ) : (
+                                                            <EyeOff className="text-muted-foreground" />
+                                                        )}
+                                                    </Button>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="grid gap-2">
-                                    <div className="flex items-center">
-                                        <Label htmlFor="password">
-                                            비밀번호
-                                        </Label>
+                            </CardContent>
+                            <CardFooter className="flex-col gap-2">
+                                <div className="w-full h-full flex flex-col gap-1">
+                                    <Button
+                                        type="submit"
+                                        className="w-full my-2 bg-[#a34547] dark:bg-[#a34547] text-white cursor-pointer"
+                                    >
+                                        로그인
+                                    </Button>
+                                    <div className="flex flex-row items-center justify-center gap-1 text-sm">
+                                        <span>계정이 없으신가요?</span>
                                         <a
-                                            href="#"
-                                            className="ml-auto inline-block text-sm underline underline-offset-4 hover:underline"
+                                            onClick={() => navigate('/sign-up')}
+                                            className="underline underline-offset-4 cursor-pointer"
                                         >
-                                            비밀번호를 잊으셨나요?
+                                            회원가입
                                         </a>
                                     </div>
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        placeholder="비밀번호를 입력하세요."
-                                        required
-                                    />
                                 </div>
-                            </div>
+                            </CardFooter>
                         </form>
-                    </CardContent>
-                    <CardFooter className="flex-col gap-2">
-                        <div className="w-full h-full flex flex-col gap-1">
-                            <Button
-                                type="submit"
-                                className="w-full my-2 bg-[#a34547] dark:bg-[#a34547] text-white"
-                            >
-                                로그인
-                            </Button>
-                            <div className="flex flex-row items-center justify-center gap-1 text-sm">
-                                <span>계정이 없으신가요?</span>
-                                <a
-                                    href=""
-                                    className="underline underline-offset-4"
-                                >
-                                    회원가입
-                                </a>
-                            </div>
-                        </div>
-                    </CardFooter>
+                    </Form>
                 </Card>
             </div>
         </>

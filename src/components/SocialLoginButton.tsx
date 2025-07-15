@@ -22,7 +22,7 @@ const providerConfig = {
     },
     google: {
         icon: '/src/assets/icons/google.svg',
-        className: 'border-gray-300', // 구글은 기본 outline 스타일을 사용
+        className: 'border-gray-300',
         label: '구글 로그인',
     },
 };
@@ -40,7 +40,6 @@ function SocialLoginButton({
             className={cn(
                 'w-full',
                 'outline-none',
-                'border-none',
                 config.className,
                 className
             )} // 기본, provider별, 추가 className 순으로 병합

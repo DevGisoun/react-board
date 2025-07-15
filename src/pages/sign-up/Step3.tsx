@@ -9,33 +9,73 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import supabase from '@/lib/supabase';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
 
-function Step3() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+const formSchema = z.object({
+    email: z.email({
+        message: '올바른 형식의 이메일 주소를 입력해주세요.',
+    }),
+    password: z.string().min(8, {
+        message: '비밀번호는 최소 8자 이상입니다.',
+    }),
+    confirmPassword: z.string().min(8, {
+        message: '비밀번호를 확인 후 입력해주세요.',
+    }),
+});
 
-    const handleSignUp = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+function SignUpStep3() {
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showConfirmPassword, setShowConfirmPassword] =
+        useState<boolean>(false);
 
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-        });
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+            confirmPassword: '',
+        },
+    });
 
-        if (error) {
-            console.error(`회원가입 중 오류가 발생했습니다: ${error.message}`);
-        } else {
-            console.log('가입 확인을 위해 이메일을 확인해주세요.');
-        }
+    const handleToggle = (field: string) => {
+        if (field === 'password') setShowPassword(!showPassword);
+        else if (field === 'confirmPassword')
+            setShowConfirmPassword(!showPassword);
     };
 
-    useEffect(() => {
-        getUser();
-    }, []);
+    const handleSignUp = async (values: z.infer<typeof formSchema>) => {
+        const email = values.email;
+        const password = values.password;
 
-    async function getUser() {}
+        try {
+            const { data } = await supabase.auth.signUp({
+                email,
+                password,
+            });
+
+            if (data.user) {
+                toast('회원가입이 완료되었습니다.', {
+                    description: '가입하신 계정으로 로그인해 주세요.',
+                });
+            }
+        } catch (error: any) {
+            console.error(`회원가입 중 오류가 발생했습니다: ${error.message}`);
+            throw new Error('회원가입 중 오류가 발생했습니다.');
+        }
+    };
 
     return (
         <>
@@ -46,70 +86,137 @@ function Step3() {
                         회원가입을 위한 정보를 입력해주세요.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-4 px-0 sm:px-6">
-                    <div className="flex flex-col gap-2">
-                        <p className="text-sm">이메일</p>
-                        <div className="flex flex-row gap-2">
-                            <Input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="이메일을 입력하세요."
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(handleSignUp)}
+                        className="flex flex-col gap-3"
+                    >
+                        <CardContent className="grid gap-4 px-0 sm:px-6">
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => {
+                                    return (
+                                        <FormItem>
+                                            <FormLabel>이메일</FormLabel>
+                                            <FormControl>
+                                                <div className="flex flex-row gap-2">
+                                                    <Input
+                                                        placeholder="이메일을 입력하세요."
+                                                        {...field}
+                                                    />
+                                                    <Button className="cursor-pointer">
+                                                        본인인증
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage className="text-xs font-normal" />
+                                        </FormItem>
+                                    );
+                                }}
                             />
-                            <Button>본인 인증</Button>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <p className="text-sm">비밀번호</p>
-                        <Input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="비밀번호를 입력하세요."
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <p className="text-sm">비밀번호 확인</p>
-                        <Input placeholder="비밀번호 확인을 입력하세요." />
-                    </div>
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs">
-                            <span className="px-2 text-muted-foreground bg-black sm:bg-card">
-                                간편 회원가입을 원하시면 로그인 링크를
-                                클릭하세요.
-                            </span>
-                        </div>
-                    </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-4 px-0 pt-4 sm:px-6">
-                    <div className="w-full grid grid-cols-2 gap-4">
-                        <Button variant={'outline'} className="cursor-pointer">
-                            이전
-                        </Button>
-                        <Button
-                            variant={'destructive'}
-                            className="cursor-pointer"
-                            onClick={handleSignUp}
-                        >
-                            회원가입
-                        </Button>
-                    </div>
-                    <div className="flex flex-row items-center justify-center gap-1 text-sm">
-                        <p>이미 계정이 있으신가요?</p>
-                        <a
-                            href=""
-                            className="underline underline-offset-4 cursor-pointer"
-                        >
-                            로그인
-                        </a>
-                    </div>
-                </CardFooter>
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem className="relative">
+                                        <FormLabel>비밀번호</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type={
+                                                    showPassword
+                                                        ? 'text'
+                                                        : 'password'
+                                                }
+                                                placeholder="비밀번호를 입력하세요."
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <Button
+                                            type="button"
+                                            size="icon"
+                                            className="absolute top-[22px] right-1 bg-transparent hover:bg-transparent cursor-pointer"
+                                            onClick={() =>
+                                                handleToggle('password')
+                                            }
+                                        >
+                                            {showPassword ? (
+                                                <Eye className="text-muted-foreground" />
+                                            ) : (
+                                                <EyeOff className="text-muted-foreground" />
+                                            )}
+                                        </Button>
+                                        <FormMessage className="text-xs font-normal" />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="confirmPassword"
+                                render={({ field }) => (
+                                    <FormItem className="relative">
+                                        <FormLabel>비밀번호 확인</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type={
+                                                    showConfirmPassword
+                                                        ? 'text'
+                                                        : 'password'
+                                                }
+                                                placeholder="비밀번호 획인란을 입력하세요."
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <Button
+                                            type="button"
+                                            size="icon"
+                                            className="absolute top-[22px] right-1 bg-transparent hover:bg-transparent cursor-pointer"
+                                            onClick={() =>
+                                                handleToggle('confirmPassword')
+                                            }
+                                        >
+                                            {showConfirmPassword ? (
+                                                <Eye className="text-muted-foreground" />
+                                            ) : (
+                                                <EyeOff className="text-muted-foreground" />
+                                            )}
+                                        </Button>
+                                        <FormMessage className="text-xs font-normal" />
+                                    </FormItem>
+                                )}
+                            />
+                        </CardContent>
+                        <CardFooter className="flex flex-col gap-4 px-0 pt-4 sm:px-6">
+                            <div className="w-full grid grid-cols-2 gap-4">
+                                <Button
+                                    variant={'outline'}
+                                    className="cursor-pointer"
+                                >
+                                    이전
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant={'destructive'}
+                                    className="cursor-pointer"
+                                >
+                                    회원가입
+                                </Button>
+                            </div>
+                            <div className="flex flex-row items-center justify-center gap-1 text-sm">
+                                <p>이미 계정이 있으신가요?</p>
+                                <a
+                                    href=""
+                                    className="underline underline-offset-4 cursor-pointer"
+                                >
+                                    로그인
+                                </a>
+                            </div>
+                        </CardFooter>
+                    </form>
+                </Form>
             </Card>
         </>
     );
 }
 
-export default Step3;
+export default SignUpStep3;
