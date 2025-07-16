@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/form';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router';
 
 const formSchema = z.object({
     email: z.email({
@@ -37,6 +38,8 @@ const formSchema = z.object({
 });
 
 function SignUpStep3() {
+    const navigate = useNavigate();
+
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showConfirmPassword, setShowConfirmPassword] =
         useState<boolean>(false);
@@ -67,9 +70,8 @@ function SignUpStep3() {
             });
 
             if (data.user) {
-                toast('회원가입이 완료되었습니다.', {
-                    description: '가입하신 계정으로 로그인해 주세요.',
-                });
+                toast.success('회원가입이 완료되었습니다.');
+                navigate('/login');
             }
         } catch (error: any) {
             console.error(`회원가입 중 오류가 발생했습니다: ${error.message}`);

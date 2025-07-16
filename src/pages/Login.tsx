@@ -9,7 +9,6 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import supabase from '@/lib/supabase';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
@@ -26,6 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { useUserStore } from '@/store/useUserStore';
 
 const formSchema = z.object({
     email: z.email({
@@ -46,7 +46,10 @@ function LoginPage() {
             password: '',
         },
     });
+
     const [showPassword, setShowPassword] = useState<boolean>(false);
+
+    const { setUser } = useUserStore();
 
     const handleToggle = () => setShowPassword((prev) => !prev);
 
@@ -60,7 +63,11 @@ function LoginPage() {
                 password,
             });
 
-            if (data.user) {
+            const user = data.user;
+            console.log(user);
+
+            if (user) {
+                setUser(user);
                 navigate('/');
             } else {
                 toast('사용자 정보를 불러올 수 없습니다.');

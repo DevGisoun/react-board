@@ -1,19 +1,10 @@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useState } from 'react';
 import SignUpStep3 from './sign-up/Step3';
+import SignUpStep1 from './sign-up/Step1';
+import SignUpStep2 from './sign-up/Step2';
 
 function SignUpPage() {
-    const [activeStep, setActiveStep] = useState(0);
-
-    const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    };
-
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
-
     return (
         <>
             <div className="w-full h-full flex flex-col items-center justify-center pt-10">
@@ -32,6 +23,7 @@ function SignUpPage() {
                     </p>
                 </div>
                 <div className="w-full max-w-100 flex items-center py-6">
+                    {/* Step 1 */}
                     <div className="flex items-center gap-2">
                         <Badge
                             variant="destructive"
@@ -45,6 +37,7 @@ function SignUpPage() {
                         orientation="horizontal"
                         className="!flex-1 mx-2"
                     />
+                    {/* Step 2 */}
                     <div className="flex items-center gap-2">
                         <Badge
                             variant="destructive"
@@ -58,6 +51,7 @@ function SignUpPage() {
                         orientation="horizontal"
                         className="!flex-1 mx-2"
                     />
+                    {/* Step 3 */}
                     <div className="flex items-center gap-2">
                         <Badge
                             variant="destructive"
@@ -68,7 +62,8 @@ function SignUpPage() {
                         <p className="text-sm font-semibold">회원가입</p>
                     </div>
                 </div>
-                {/* <Step1 /> */}
+                {/* <SignUpStep1 />
+                <SignUpStep2 /> */}
                 <SignUpStep3 />
             </div>
         </>

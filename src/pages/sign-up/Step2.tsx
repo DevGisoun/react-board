@@ -13,14 +13,14 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { ChevronRight } from 'lucide-react';
 
-function SignUpStep1() {
+function SignUpStep2() {
     return (
         <>
             <Card className="w-full max-w-100 gap-3 py-6">
                 <CardHeader>
-                    <CardTitle className="text-lg">약관 동의</CardTitle>
+                    <CardTitle className="text-lg">프로필 등록</CardTitle>
                     <CardDescription>
-                        필수 이용약관에 먼저 동의해주세요.
+                        본인의 장점과 이력 소개를 통해 강렬하게 어필해보세요!
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4 px-0 sm:px-6">
@@ -125,4 +125,4 @@ function SignUpStep1() {
     );
 }
 
-export default SignUpStep1;
+export default SignUpStep2;
