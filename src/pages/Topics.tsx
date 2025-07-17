@@ -32,7 +32,7 @@ function TopicsPage() {
                                         핫 토픽
                                     </h4>
                                 </div>
-                                <p className="md:text-base text-muted-foreground">
+                                <p className="text-neutral-400">
                                     지금 가장 주목받는 주제들을 살펴보고, 다양한
                                     관점의 인사이트를 얻어보세요.
                                 </p>
@@ -58,7 +58,7 @@ function TopicsPage() {
                                         NEW 토픽
                                     </h4>
                                 </div>
-                                <p className="md:text-base text-muted-foreground">
+                                <p className="text-neutral-400">
                                     새로운 시선으로, 새로운 이야기를 시작하세요.
                                     지금 바로 당신만의 토픽을 만들어보세요.
                                 </p>
@@ -72,10 +72,10 @@ function TopicsPage() {
                             </div>
                         </section>
                     </section>
-                    <div className="fixed right-1/2 bottom-10 translate-x-1/2 z-20 flex items-center gap-3 md:gap-4">
+                    <div className="fixed right-1/2 bottom-10 translate-x-1/2 z-20 flex items-center gap-3">
                         <Button
                             variant={'destructive'}
-                            className="fixed bottom-8 !py-5 !px-6 text-white rounded-full opacity-80 cursor-pointer"
+                            className="!py-6 !px-12 text-white rounded-full opacity-90 cursor-pointer"
                             onClick={() => navigate('/topics/new-topic')}
                         >
                             <PencilLine />
