@@ -27,7 +27,7 @@ function NewTopicPage() {
                         className="!bg-neutral-900 border-none h-16 px-6 !text-lg placeholder:text-lg font-bold"
                     />
                     <hr className="w-full bg-neutral-900" />
-                    <div className="flex flex-row justify-between">
+                    <div className="w-full flex flex-row justify-between">
                         <div className="w-full sm:max-w-[308px] h-full flex flex-col gap-4 sm:gap-6 lg:w-1/4 lg:min-w-[308px]">
                             <div className="flex items-center gap-2">
                                 <Button variant="outline">
@@ -44,7 +44,7 @@ function NewTopicPage() {
                             </div>
                             <Separator />
                             <div className="flex flex-col gap-2">
-                                <div className="flex items-center">
+                                <div className="flex items-center gap-2">
                                     <Asterisk className="text-[#f96859] w-[14px] h-[14px]" />
                                     <Label htmlFor="category">카테고리</Label>
                                 </div>
@@ -76,9 +76,9 @@ function NewTopicPage() {
                                 </Select>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <div className="flex items-center">
+                                <div className="flex items-center gap-2">
                                     <Asterisk className="text-[#f96859] w-[14px] h-[14px]" />
-                                    <Label htmlFor="category">카테고리</Label>
+                                    <Label htmlFor="category">썸네일</Label>
                                 </div>
                                 <Skeleton className="w-full aspect-video" />
                             </div>
