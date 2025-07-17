@@ -12,11 +12,126 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 import { CREATE_TOPIC_CATEGORY } from '@/constants/topic-category.constant';
-import { ArrowLeft, Asterisk, ImageOff, Rocket } from 'lucide-react';
+import supabase from '@/lib/supabase';
+import type { Topic } from '@/types/topic.types';
+import type { PartialBlock } from '@blocknote/core';
+import { ArrowLeft, Asterisk, Image, ImageOff, Rocket } from 'lucide-react';
+import { useRef, useState, type ChangeEvent } from 'react';
+import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 function NewTopicPage() {
+    const navigate = useNavigate();
+    const [title, setTitle] = useState<string>('');
+    const [category, setCategory] = useState<string>('');
+    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
+        null
+    );
+    const [content, setContent] = useState<PartialBlock[] | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    const thumbnailInput = useRef<HTMLInputElement>(null);
+
+    const onClickInput = () => {
+        thumbnailInput.current?.click();
+    };
+
+    // 썸네일 이미지 변경 핸들러
+    const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setThumbnailFile(file);
+            const previewUrl = URL.createObjectURL(file);
+            setThumbnailPreview(previewUrl);
+        }
+    };
+
+    // 썸네일 제거 핸들러
+    const handleRemoveThumbnail = () => {
+        setThumbnailFile(null);
+        setThumbnailPreview(null);
+        if (thumbnailInput.current) {
+            thumbnailInput.current.value = '';
+        }
+    };
+
+    // Block Note Editor 내용 변경 핸들러
+    const onEditorContentChange = (newContent: PartialBlock[] | null) => {
+        setContent(newContent);
+    };
+
+    const handleSubmit = async () => {
+        if (!title || !category) {
+            alert("'제목', '카테고리'는 필수입니다.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        let thumbnailUrl: string | null = null;
+
+        try {
+            // 썸네일 이미지 파일 시에만 업로드 실행.
+            if (thumbnailFile) {
+                // 썸네일 이미지 Storage에 업로드
+
+                const fileExt = thumbnailFile.name.split('.').pop();
+                const fileName = `${uuidv4()}.${fileExt}`;
+                const filePath = `topic-files/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('topic-files')
+                    .upload(filePath, thumbnailFile);
+
+                if (uploadError) {
+                    throw uploadError;
+                }
+
+                // 2. 업로드된 이미지의 Public URL 가져오기
+                const { data: urlData } = supabase.storage
+                    .from('topic-files')
+                    .getPublicUrl(filePath);
+
+                if (!urlData) {
+                    throw new Error('Failed to get public URL for thumbnail.');
+                }
+
+                // Storage에 업로드된 파일의 URL 할당.
+                thumbnailUrl = urlData.publicUrl;
+            }
+
+            // Supabase Database에 게시글 정보 INSERT.
+            const topic: Topic = {
+                title,
+                category,
+                thumbnail: thumbnailUrl,
+                content,
+            };
+
+            const { error: insertError } = await supabase
+                .from('Topics')
+                .insert([topic]);
+
+            if (insertError) {
+                throw insertError;
+            }
+
+            toast.success('토픽이 성공적으로 발행되었습니다!');
+            navigate('/');
+        } catch (error) {
+            console.error('Error publishing topic: ', error);
+            toast.error(
+                `게시글 발행 중 오류가 발생했습니다: ${
+                    error instanceof Error ? error.message : 'Unknown error'
+                }`
+            );
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <>
             <div className="container">
@@ -25,21 +140,32 @@ function NewTopicPage() {
                         placeholder="토픽 제목을 입력하세요."
                         maxLength={50}
                         className="!bg-neutral-900 border-none h-16 px-6 !text-lg placeholder:text-lg font-bold"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
                     />
                     <hr className="w-full bg-neutral-900" />
                     <div className="w-full flex flex-row justify-between">
                         <div className="w-full sm:max-w-[308px] h-full flex flex-col gap-4 sm:gap-6 lg:w-1/4 lg:min-w-[308px]">
                             <div className="flex items-center gap-2">
-                                <Button variant="outline">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        navigate(-1);
+                                    }}
+                                >
                                     <ArrowLeft />
                                 </Button>
                                 <Button variant="outline">임시 저장</Button>
                                 <Button
                                     variant="destructive"
                                     className="flex-1"
+                                    onClick={handleSubmit}
+                                    disabled={isSubmitting}
                                 >
                                     <Rocket />
-                                    토픽 발행하기
+                                    {isSubmitting
+                                        ? '발행 중...'
+                                        : '토픽 발행하기'}
                                 </Button>
                             </div>
                             <Separator />
@@ -48,7 +174,10 @@ function NewTopicPage() {
                                     <Asterisk className="text-[#f96859] w-[14px] h-[14px]" />
                                     <Label htmlFor="category">카테고리</Label>
                                 </div>
-                                <Select>
+                                <Select
+                                    onValueChange={setCategory}
+                                    value={category}
+                                >
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="토픽 주제 선택" />
                                     </SelectTrigger>
@@ -80,17 +209,49 @@ function NewTopicPage() {
                                     <Asterisk className="text-[#f96859] w-[14px] h-[14px]" />
                                     <Label htmlFor="category">썸네일</Label>
                                 </div>
-                                <Skeleton className="w-full aspect-video" />
+                                {/* <Skeleton className="w-full aspect-video" /> */}
+                                <div className="flex flex-col gap-2 dark:bg-accent/25">
+                                    <div className="relative w-full aspect-video rounded-md border dark:bg-input/20">
+                                        {thumbnailPreview ? (
+                                            <img
+                                                src={thumbnailPreview}
+                                                className="w-full aspect-video object-cover rounded-md"
+                                                alt="Thumbnail preview"
+                                            />
+                                        ) : (
+                                            <Button
+                                                variant="secondary"
+                                                size="icon"
+                                                className="size-9 absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                                                onClick={onClickInput}
+                                            >
+                                                <Image className="!w-5 !h-5" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                    <Input
+                                        type="file"
+                                        accept="image/*"
+                                        ref={thumbnailInput}
+                                        className="hidden"
+                                        onChange={handleThumbnailChange}
+                                    />
+                                </div>
                             </div>
                             <Separator className="-my-4" />
-                            <Button variant="outline">
+                            <Button
+                                variant="outline"
+                                onClick={handleRemoveThumbnail}
+                            >
                                 <ImageOff />
                                 썸네일 제거
                             </Button>
                         </div>
                         {/* 텍스트 편집기 */}
                         <div className="w-[70%]">
-                            <TextEditor />
+                            <TextEditor
+                                onEditorContentChange={onEditorContentChange}
+                            />
                         </div>
                     </div>
                 </div>
