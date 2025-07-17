@@ -24,6 +24,7 @@ import {
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
+import type { SignUpStep3Props } from '@/types/sign-up.types';
 
 const formSchema = z.object({
     email: z.email({
@@ -37,7 +38,7 @@ const formSchema = z.object({
     }),
 });
 
-function SignUpStep3() {
+function SignUpStep3({ onPrev, formData, updateFormData }: SignUpStep3Props) {
     const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -104,8 +105,14 @@ function SignUpStep3() {
                                             <FormControl>
                                                 <div className="flex flex-row gap-2">
                                                     <Input
-                                                        placeholder="이메일을 입력하세요."
                                                         {...field}
+                                                        placeholder="이메일을 입력하세요."
+                                                        onChange={(e) =>
+                                                            updateFormData({
+                                                                email: e.target
+                                                                    .value,
+                                                            })
+                                                        }
                                                     />
                                                     <Button className="cursor-pointer">
                                                         본인인증
@@ -125,13 +132,19 @@ function SignUpStep3() {
                                         <FormLabel>비밀번호</FormLabel>
                                         <FormControl>
                                             <Input
+                                                {...field}
                                                 type={
                                                     showPassword
                                                         ? 'text'
                                                         : 'password'
                                                 }
                                                 placeholder="비밀번호를 입력하세요."
-                                                {...field}
+                                                onChange={(e) =>
+                                                    updateFormData({
+                                                        password:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                         </FormControl>
                                         <Button
@@ -160,13 +173,19 @@ function SignUpStep3() {
                                         <FormLabel>비밀번호 확인</FormLabel>
                                         <FormControl>
                                             <Input
+                                                {...field}
                                                 type={
                                                     showConfirmPassword
                                                         ? 'text'
                                                         : 'password'
                                                 }
                                                 placeholder="비밀번호 획인란을 입력하세요."
-                                                {...field}
+                                                onChange={(e) =>
+                                                    updateFormData({
+                                                        confirmPassword:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                         </FormControl>
                                         <Button

@@ -72,7 +72,7 @@ function NavBar() {
                                 >
                                     <DropdownMenuLabel>
                                         <div className="flex flex-col items-start">
-                                            <p>이름</p>
+                                            <p>{user.email}</p>
                                             <p className="text-xs text-neutral-400">
                                                 {user.email}
                                             </p>
