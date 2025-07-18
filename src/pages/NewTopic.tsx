@@ -14,6 +14,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { CREATE_TOPIC_CATEGORY } from '@/constants/topic-category.constant';
 import supabase from '@/lib/supabase';
+import { useUserStore } from '@/store/useUserStore';
 import type { Topic } from '@/types/topic.types';
 import type { PartialBlock } from '@blocknote/core';
 import { ArrowLeft, Asterisk, Image, ImageOff, Rocket } from 'lucide-react';
@@ -24,6 +25,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 function NewTopicPage() {
     const navigate = useNavigate();
+
+    const { user } = useUserStore();
+
     const [title, setTitle] = useState<string>('');
     const [category, setCategory] = useState<string>('');
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -35,17 +39,12 @@ function NewTopicPage() {
 
     const thumbnailInput = useRef<HTMLInputElement>(null);
 
-    const onClickInput = () => {
-        thumbnailInput.current?.click();
-    };
-
     // 썸네일 이미지 변경 핸들러
     const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setThumbnailFile(file);
-            const previewUrl = URL.createObjectURL(file);
-            setThumbnailPreview(previewUrl);
+            setThumbnailPreview(URL.createObjectURL(file));
         }
     };
 
@@ -63,9 +62,10 @@ function NewTopicPage() {
         setContent(newContent);
     };
 
+    // 토픽 저장 핸들러
     const handleSubmit = async () => {
         if (!title || !category) {
-            alert("'제목', '카테고리'는 필수입니다.");
+            toast.warning("'제목', '카테고리'는 필수입니다.");
             return;
         }
 
@@ -73,13 +73,19 @@ function NewTopicPage() {
         let thumbnailUrl: string | null = null;
 
         try {
+            if (!user) {
+                throw new Error(
+                    '사용자 정보를 불러올 수 없습니다. 다시 로그인해 주세요.'
+                );
+            }
+
             // 썸네일 이미지 파일 시에만 업로드 실행.
             if (thumbnailFile) {
                 // 썸네일 이미지 Storage에 업로드
 
                 const fileExt = thumbnailFile.name.split('.').pop();
                 const fileName = `${uuidv4()}.${fileExt}`;
-                const filePath = `topic-files/${fileName}`;
+                const filePath = `topic-files/${fileName}`; // 추후 'topic-files'를 user의 id로 변경.
 
                 const { error: uploadError } = await supabase.storage
                     .from('topic-files')
@@ -104,6 +110,7 @@ function NewTopicPage() {
 
             // Supabase Database에 게시글 정보 INSERT.
             const topic: Topic = {
+                user_id: user.id,
                 title,
                 category,
                 thumbnail: thumbnailUrl,
@@ -112,7 +119,8 @@ function NewTopicPage() {
 
             const { error: insertError } = await supabase
                 .from('Topics')
-                .insert([topic]);
+                .insert([topic])
+                .select();
 
             if (insertError) {
                 throw insertError;
@@ -131,6 +139,9 @@ function NewTopicPage() {
             setIsSubmitting(false);
         }
     };
+
+    // 토픽 임시 저장 핸들러.
+    const handleSaveDraft = async () => {};
 
     return (
         <>
@@ -223,7 +234,9 @@ function NewTopicPage() {
                                                 variant="secondary"
                                                 size="icon"
                                                 className="size-9 absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 cursor-pointer"
-                                                onClick={onClickInput}
+                                                onClick={() =>
+                                                    thumbnailInput.current?.click()
+                                                }
                                             >
                                                 <Image className="!w-5 !h-5" />
                                             </Button>
