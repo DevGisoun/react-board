@@ -1,14 +1,46 @@
+import HotTopicCard from '@/components/cards/HotTopicCard';
 import CategorySelector from '@/components/common/CategorySelector';
 import SkeletonHotTopicCard from '@/components/skeleton/HotTopic';
 import SkeletonBasicTopicCard from '@/components/skeleton/NewTopic';
 import { Button } from '@/components/ui/button';
+import supabase from '@/lib/supabase';
+import type { Topic } from '@/types/topic.types';
 import { PencilLine } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 function TopicsPage() {
-    const [category, setCategory] = useState<string>('');
     const navigate = useNavigate();
+
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [category, setCategory] = useState<string>('');
+    const [topics, setTopics] = useState<Topic[]>([]);
+
+    const getTopics = async (): Promise<Topic[]> => {
+        try {
+            setIsLoading(true);
+            const { data, error } = await supabase.from('Topics').select();
+
+            if (error) throw error;
+
+            if (data.length === 0) return [] as Topic[];
+
+            while (data.length < 4) data.push(null);
+
+            return data as Topic[];
+        } catch (error) {
+            return [] as Topic[];
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getTopics().then((topics) => {
+            console.log(topics);
+            setTopics(topics);
+        });
+    }, []);
 
     return (
         <>
@@ -39,10 +71,16 @@ function TopicsPage() {
                             </div>
 
                             <div className="flex items-center gap-4 sm:gap-6 overflow-auto">
-                                <SkeletonHotTopicCard />
-                                <SkeletonHotTopicCard />
-                                <SkeletonHotTopicCard />
-                                <SkeletonHotTopicCard />
+                                {isLoading
+                                    ? Array.from({ length: 4 }).map(() => (
+                                          <SkeletonHotTopicCard />
+                                      ))
+                                    : topics.map((topic) => {
+                                          if (!topic)
+                                              return <SkeletonHotTopicCard />;
+
+                                          return <HotTopicCard topic={topic} />;
+                                      })}
                             </div>
                         </div>
                         {/* 신규 토픽 섹션 */}
@@ -75,7 +113,7 @@ function TopicsPage() {
                     <div className="fixed right-1/2 bottom-10 translate-x-1/2 z-20 flex items-center gap-3">
                         <Button
                             variant={'destructive'}
-                            className="!py-6 !px-12 text-white rounded-full opacity-90 cursor-pointer"
+                            className="!py-6 !px-12 text-white text-base font-semibold rounded-full opacity-90 cursor-pointer"
                             onClick={() => navigate('/topics/new-topic')}
                         >
                             <PencilLine />

@@ -127,7 +127,7 @@ function NewTopicPage() {
             }
 
             toast.success('토픽이 성공적으로 발행되었습니다!');
-            navigate('/');
+            navigate('/topics');
         } catch (error) {
             console.error('Error publishing topic: ', error);
             toast.error(
@@ -227,7 +227,7 @@ function NewTopicPage() {
                                             <img
                                                 src={thumbnailPreview}
                                                 className="w-full aspect-video object-cover rounded-md"
-                                                alt="Thumbnail preview"
+                                                alt="thumbnail_preview"
                                             />
                                         ) : (
                                             <Button
