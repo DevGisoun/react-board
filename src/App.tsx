@@ -13,7 +13,7 @@ import supabase from './lib/supabase';
 
 function App() {
     // 유저 인증 상태 관리 case 1: session 통신.
-    const { setUser } = useUserStore();
+    const { setUser, setAccessToken } = useUserStore();
 
     useEffect(() => {
         // onAuthStateChange: 사용자의 인증 상태의 모든 변경(로그인, 로그아웃 등) 감지.
@@ -22,14 +22,17 @@ function App() {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_, session) => {
             // 세션 정보가 있으면(로그인) user를, 없으면(로그아웃) null을 Store에 저장하여 로그인 상태 유지 설정.
+            console.log(session?.user);
+            console.log(session?.access_token);
             setUser(session?.user ?? null);
+            setAccessToken(session?.access_token ?? null);
         });
 
         // 컴포넌트가 언마운트될 때 리스너를 정리(unsubscribe)하여 메모리 누수 방지.
         return () => {
             subscription.unsubscribe();
         };
-    }, [setUser]);
+    }, [setUser, setAccessToken]);
 
     // 유저 인증 상태 관리 case 2: localStorage 데이터 로드.
     // UserStore에서 즉시 불러와 사용 가능.

@@ -38,7 +38,12 @@ const formSchema = z.object({
     }),
 });
 
-function SignUpStep3({ onPrev, formData, updateFormData }: SignUpStep3Props) {
+function SignUpStep3({
+    onPrev,
+    formData,
+    updateFormData,
+    handleSignUp,
+}: SignUpStep3Props) {
     const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -60,26 +65,6 @@ function SignUpStep3({ onPrev, formData, updateFormData }: SignUpStep3Props) {
             setShowConfirmPassword(!showPassword);
     };
 
-    const handleSignUp = async (values: z.infer<typeof formSchema>) => {
-        const email = values.email;
-        const password = values.password;
-
-        try {
-            const { data } = await supabase.auth.signUp({
-                email,
-                password,
-            });
-
-            if (data.user) {
-                toast.success('회원가입이 완료되었습니다.');
-                navigate('/login');
-            }
-        } catch (error: any) {
-            console.error(`회원가입 중 오류가 발생했습니다: ${error.message}`);
-            throw new Error('회원가입 중 오류가 발생했습니다.');
-        }
-    };
-
     return (
         <>
             <Card className="w-full max-w-100 gap-3 py-6">
@@ -91,7 +76,9 @@ function SignUpStep3({ onPrev, formData, updateFormData }: SignUpStep3Props) {
                 </CardHeader>
                 <Form {...form}>
                     <form
-                        onSubmit={form.handleSubmit(handleSignUp)}
+                        onSubmit={form.handleSubmit(
+                            (_: z.infer<typeof formSchema>) => handleSignUp()
+                        )}
                         className="flex flex-col gap-3"
                     >
                         <CardContent className="grid gap-4 px-0 sm:px-6">
@@ -113,6 +100,7 @@ function SignUpStep3({ onPrev, formData, updateFormData }: SignUpStep3Props) {
                                                                     .value,
                                                             })
                                                         }
+                                                        value={formData.email}
                                                     />
                                                     <Button className="cursor-pointer">
                                                         본인인증
@@ -145,6 +133,7 @@ function SignUpStep3({ onPrev, formData, updateFormData }: SignUpStep3Props) {
                                                             e.target.value,
                                                     })
                                                 }
+                                                value={formData.password}
                                             />
                                         </FormControl>
                                         <Button
@@ -186,6 +175,7 @@ function SignUpStep3({ onPrev, formData, updateFormData }: SignUpStep3Props) {
                                                             e.target.value,
                                                     })
                                                 }
+                                                value={formData.confirmPassword}
                                             />
                                         </FormControl>
                                         <Button
@@ -210,8 +200,10 @@ function SignUpStep3({ onPrev, formData, updateFormData }: SignUpStep3Props) {
                         <CardFooter className="flex flex-col gap-4 px-0 pt-4 sm:px-6">
                             <div className="w-full grid grid-cols-2 gap-4">
                                 <Button
+                                    type="button"
                                     variant={'outline'}
                                     className="cursor-pointer"
+                                    onClick={onPrev}
                                 >
                                     이전
                                 </Button>

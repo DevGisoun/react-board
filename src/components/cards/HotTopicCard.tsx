@@ -17,7 +17,9 @@ function HotTopicCard({ topic }: HotTopicCardProps) {
 
     const [author, setAuthor] = useState<User>();
 
-    useEffect(() => {}, []);
+    useEffect(() => {
+        console.log(topic);
+    }, []);
 
     return (
         <>

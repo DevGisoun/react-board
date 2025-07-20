@@ -4,14 +4,20 @@ import type { User } from '@supabase/supabase-js';
 
 interface UserState {
     user: User | null;
+    accessToken: string | null;
+    // isAuthenticated: boolean;
     setUser: (user: User | null) => void;
+    setAccessToken: (accessToken: string | null) => void;
     clearUser: () => void;
 }
 
 // case 1: persist 사용 X. (session 통신)
 export const useUserStore = create<UserState>((set) => ({
     user: null,
+    accessToken: null,
+    // isAuthenticated: false,
     setUser: (user) => set({ user }),
+    setAccessToken: (accessToken) => set({ accessToken }),
     clearUser: () => set({ user: null }),
 }));
 

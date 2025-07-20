@@ -200,12 +200,14 @@ function SignUpStep1({ onNext, formData, updateFormData }: SignUpStep1Props) {
                         <CardFooter className="flex flex-col gap-4 px-0 pt-4 sm:px-6">
                             <div className="w-full grid grid-cols-2 gap-4">
                                 <Button
+                                    type="button"
                                     variant={'outline'}
                                     className="cursor-pointer"
                                 >
                                     이전
                                 </Button>
                                 <Button
+                                    type="submit"
                                     variant={'destructive'}
                                     className="cursor-pointer"
                                 >

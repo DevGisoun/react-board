@@ -10,8 +10,13 @@ import type {
     TermsData,
 } from '@/types/sign-up.types';
 import SignUpStep2 from './sign-up/Step2';
+import supabase from '@/lib/supabase';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router';
 
 function SignUpPage() {
+    const navigate = useNavigate();
+
     const [currentStep, setCurrentStep] = useState(1);
 
     // 전체 폼 데이터 관리
@@ -59,7 +64,7 @@ function SignUpPage() {
     };
 
     const nextStep = () => {
-        if (currentStep < 2) {
+        if (currentStep < 3) {
             setCurrentStep(currentStep + 1);
         }
     };
@@ -67,6 +72,26 @@ function SignUpPage() {
     const prevStep = () => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1);
+        }
+    };
+
+    const handleSignUp = async () => {
+        const email = formData.account.email;
+        const password = formData.account.password;
+
+        try {
+            const { data } = await supabase.auth.signUp({
+                email,
+                password,
+            });
+
+            if (data.user) {
+                toast.success('회원가입이 완료되었습니다.');
+                navigate('/login');
+            }
+        } catch (error: any) {
+            console.error(`회원가입 중 오류가 발생했습니다: ${error.message}`);
+            throw new Error('회원가입 중 오류가 발생했습니다.');
         }
     };
 
@@ -95,6 +120,7 @@ function SignUpPage() {
                         onPrev={prevStep}
                         formData={formData.account}
                         updateFormData={updateAccountData}
+                        handleSignUp={handleSignUp}
                     />
                 );
             default:

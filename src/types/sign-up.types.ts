@@ -46,4 +46,5 @@ export interface SignUpStep3Props {
     formData: AccountData;
     updateFormData: (data: Partial<AccountData>) => void;
     // isLoading: boolean;
+    handleSignUp: () => Promise<void>;
 }
