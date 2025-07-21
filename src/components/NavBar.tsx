@@ -1,4 +1,4 @@
-import { useUserStore } from '@/store/useUserStore';
+import { useAuthUserStore } from '@/store/useAuthUserStore';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router';
 function NavBar() {
     const navigate = useNavigate();
 
-    const { user, clearUser } = useUserStore();
+    const { authUser, clearAuthUser } = useAuthUserStore();
 
     const handleSignOut = async () => {
         const { error } = await supabase.auth.signOut();
@@ -24,7 +24,7 @@ function NavBar() {
         if (error) {
             console.error('Error- sign out: ', error.message);
         } else {
-            clearUser(); // Zustand User Store의 유저 정보 초기화.
+            clearAuthUser(); // Zustand User Store의 유저 정보 초기화.
             navigate('/login');
         }
     };
@@ -55,14 +55,14 @@ function NavBar() {
                     </div>
                     {/* 로그인 ~ 우리가 하는 일 */}
                     <div className="flex flex-row items-center gap-4 font-medium">
-                        {user ? (
+                        {authUser ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
                                         variant="ghost"
                                         className="flex items-center cursor-pointer bg-transparent hover:bg-transparent dark:hover:bg-transparent"
                                     >
-                                        <p>{user.email}님</p>
+                                        <p>{authUser.email}님</p>
                                         <ChevronDown className="!w-[20px] !h-[20px]" />
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -72,9 +72,9 @@ function NavBar() {
                                 >
                                     <DropdownMenuLabel>
                                         <div className="flex flex-col items-start">
-                                            <p>{user.email}</p>
+                                            <p>{authUser.email}</p>
                                             <p className="text-xs text-neutral-400">
-                                                {user.email}
+                                                {authUser.email}
                                             </p>
                                         </div>
                                     </DropdownMenuLabel>

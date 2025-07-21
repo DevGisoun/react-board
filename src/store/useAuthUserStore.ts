@@ -2,27 +2,27 @@ import { create } from 'zustand';
 import type { User } from '@supabase/supabase-js';
 // import { createJSONStorage, persist } from 'zustand/middleware';
 
-interface UserState {
-    user: User | null;
+interface AuthUserState {
+    authUser: User | null;
     accessToken: string | null;
     // isAuthenticated: boolean;
-    setUser: (user: User | null) => void;
+    setAuthUser: (user: User | null) => void;
     setAccessToken: (accessToken: string | null) => void;
-    clearUser: () => void;
+    clearAuthUser: () => void;
 }
 
 // case 1: persist 사용 X. (session 통신)
-export const useUserStore = create<UserState>((set) => ({
-    user: null,
+export const useAuthUserStore = create<AuthUserState>((set) => ({
+    authUser: null,
     accessToken: null,
     // isAuthenticated: false,
-    setUser: (user) => set({ user }),
+    setAuthUser: (authUser) => set({ authUser }),
     setAccessToken: (accessToken) => set({ accessToken }),
-    clearUser: () => set({ user: null }),
+    clearAuthUser: () => set({ authUser: null }),
 }));
 
 // case 2: persist 사용. (localStorage 데이터 로드)
-// export const useUserStore = create<UserState>()(
+// export const useAuthUserStore = create<AuthUserState>()(
 //     persist(
 //         (set) => ({
 //             user: null,

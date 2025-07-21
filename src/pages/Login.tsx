@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
-import { useUserStore } from '@/store/useUserStore';
+import { useAuthUserStore } from '@/store/useAuthUserStore';
 
 const formSchema = z.object({
     email: z.email({
@@ -49,7 +49,7 @@ function LoginPage() {
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    const { setUser } = useUserStore();
+    const { setAuthUser } = useAuthUserStore();
 
     const handleToggle = () => setShowPassword((prev) => !prev);
 
@@ -68,7 +68,7 @@ function LoginPage() {
             console.log(user);
 
             if (user) {
-                setUser(user);
+                setAuthUser(user);
                 navigate('/');
             } else {
                 toast('사용자 정보를 불러올 수 없습니다.');

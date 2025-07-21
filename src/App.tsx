@@ -7,13 +7,13 @@ import NavBar from './components/NavBar';
 import TopicsPage from './pages/Topics';
 import NewTopicPage from './pages/NewTopic';
 import { Toaster } from './components/ui/sonner';
-import { useUserStore } from './store/useUserStore';
+import { useAuthUserStore } from './store/useAuthUserStore';
 import { useEffect } from 'react';
 import supabase from './lib/supabase';
 
 function App() {
     // 유저 인증 상태 관리 case 1: session 통신.
-    const { setUser, setAccessToken } = useUserStore();
+    const { setAuthUser, setAccessToken } = useAuthUserStore();
 
     useEffect(() => {
         // onAuthStateChange: 사용자의 인증 상태의 모든 변경(로그인, 로그아웃 등) 감지.
@@ -24,7 +24,7 @@ function App() {
             // 세션 정보가 있으면(로그인) user를, 없으면(로그아웃) null을 Store에 저장하여 로그인 상태 유지 설정.
             console.log(session?.user);
             console.log(session?.access_token);
-            setUser(session?.user ?? null);
+            setAuthUser(session?.user ?? null);
             setAccessToken(session?.access_token ?? null);
         });
 
@@ -32,7 +32,7 @@ function App() {
         return () => {
             subscription.unsubscribe();
         };
-    }, [setUser, setAccessToken]);
+    }, [setAuthUser, setAccessToken]);
 
     // 유저 인증 상태 관리 case 2: localStorage 데이터 로드.
     // UserStore에서 즉시 불러와 사용 가능.

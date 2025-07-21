@@ -14,7 +14,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { CREATE_TOPIC_CATEGORY } from '@/constants/topic-category.constant';
 import supabase from '@/lib/supabase';
-import { useUserStore } from '@/store/useUserStore';
+import { useAuthUserStore } from '@/store/useAuthUserStore';
 import type { Topic } from '@/types/topic.types';
 import type { PartialBlock } from '@blocknote/core';
 import { ArrowLeft, Asterisk, Image, ImageOff, Rocket } from 'lucide-react';
@@ -26,7 +26,7 @@ import { v4 as uuidv4 } from 'uuid';
 function NewTopicPage() {
     const navigate = useNavigate();
 
-    const { user } = useUserStore();
+    const { authUser } = useAuthUserStore();
 
     const [title, setTitle] = useState<string>('');
     const [category, setCategory] = useState<string>('');
@@ -73,7 +73,7 @@ function NewTopicPage() {
         let thumbnailUrl: string | null = null;
 
         try {
-            if (!user) {
+            if (!authUser) {
                 throw new Error(
                     '사용자 정보를 불러올 수 없습니다. 다시 로그인해 주세요.'
                 );
@@ -107,7 +107,7 @@ function NewTopicPage() {
 
             // Supabase Database에 게시글 정보 INSERT.
             const topic: Topic = {
-                user_id: user.id,
+                user_id: authUser.id,
                 title,
                 category,
                 thumbnail: thumbnailUrl,
