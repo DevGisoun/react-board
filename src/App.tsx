@@ -10,10 +10,28 @@ import { Toaster } from './components/ui/sonner';
 import { useAuthUserStore } from './store/useAuthUserStore';
 import { useEffect } from 'react';
 import supabase from './lib/supabase';
+import { useUserInfoStore } from './store/useUserInfoStore';
+import type { UserInfo } from './types/user-info.types';
 
 function App() {
     // 유저 인증 상태 관리 case 1: session 통신.
     const { setAuthUser, setAccessToken } = useAuthUserStore();
+
+    // 사용자 프로필 상태 관리
+    const { setUserInfo } = useUserInfoStore();
+
+    const getUserInfo = async (userId: string): Promise<void> => {
+        try {
+            const { data: userInfoData } = await supabase
+                .from('UserInfo')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
+            setUserInfo(userInfoData);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     useEffect(() => {
         // onAuthStateChange: 사용자의 인증 상태의 모든 변경(로그인, 로그아웃 등) 감지.
@@ -26,6 +44,10 @@ function App() {
             console.log(session?.access_token);
             setAuthUser(session?.user ?? null);
             setAccessToken(session?.access_token ?? null);
+
+            if (session?.user) {
+                getUserInfo(session?.user.id);
+            }
         });
 
         // 컴포넌트가 언마운트될 때 리스너를 정리(unsubscribe)하여 메모리 누수 방지.

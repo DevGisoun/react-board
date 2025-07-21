@@ -12,11 +12,13 @@ import { Button } from './ui/button';
 import { ChevronDown, LogOut, User } from 'lucide-react';
 import supabase from '@/lib/supabase';
 import { useNavigate } from 'react-router';
+import { useUserInfoStore } from '@/store/useUserInfoStore';
 
 function NavBar() {
     const navigate = useNavigate();
 
     const { authUser, clearAuthUser } = useAuthUserStore();
+    const { userInfo } = useUserInfoStore();
 
     const handleSignOut = async () => {
         const { error } = await supabase.auth.signOut();
@@ -55,14 +57,14 @@ function NavBar() {
                     </div>
                     {/* 로그인 ~ 우리가 하는 일 */}
                     <div className="flex flex-row items-center gap-4 font-medium">
-                        {authUser ? (
+                        {authUser && userInfo ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
                                         variant="ghost"
                                         className="flex items-center cursor-pointer bg-transparent hover:bg-transparent dark:hover:bg-transparent"
                                     >
-                                        <p>{authUser.email}님</p>
+                                        <p>{userInfo.nickname}님</p>
                                         <ChevronDown className="!w-[20px] !h-[20px]" />
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -72,7 +74,7 @@ function NavBar() {
                                 >
                                     <DropdownMenuLabel>
                                         <div className="flex flex-col items-start">
-                                            <p>{authUser.email}</p>
+                                            <p>{userInfo.nickname}</p>
                                             <p className="text-xs text-neutral-400">
                                                 {authUser.email}
                                             </p>
