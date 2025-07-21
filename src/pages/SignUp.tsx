@@ -13,6 +13,8 @@ import SignUpStep2 from './sign-up/Step2';
 import supabase from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
+import type { UserInfo } from '@/types/user-info.types';
+import { v4 as uuidv4 } from 'uuid';
 
 function SignUpPage() {
     const navigate = useNavigate();
@@ -22,12 +24,14 @@ function SignUpPage() {
     // 전체 폼 데이터 관리
     const [formData, setFormData] = useState<SignUpFormData>({
         terms: {
-            serviceTerms: null,
-            privacyPolicy: null,
-            marketingConsent: null,
+            service_terms: null,
+            privacy_policy: null,
+            marketing_consent: null,
         },
         profile: {
             nickname: '',
+            avatarFile: null,
+            avatarUrl: null,
             industry: '',
             job: '',
             country: '',
@@ -37,7 +41,7 @@ function SignUpPage() {
         account: {
             email: '',
             password: '',
-            confirmPassword: '',
+            confirm_password: '',
         },
     });
 
@@ -78,17 +82,77 @@ function SignUpPage() {
     const handleSignUp = async () => {
         const email = formData.account.email;
         const password = formData.account.password;
+        console.log(formData);
 
         try {
-            const { data } = await supabase.auth.signUp({
+            // 1. Supabase Auth 에 회원 등록
+            const { data: authData } = await supabase.auth.signUp({
                 email,
                 password,
             });
 
-            if (data.user) {
-                toast.success('회원가입이 완료되었습니다.');
-                navigate('/login');
+            if (!authData.user) {
+                throw new Error('사용자 정보를 가져오지 못했습니다.');
             }
+
+            // 2. Supabase Storage 에 사용자 프로필 사진 저장.
+            let avatarUrl: string | null = null;
+            const avatarFile: File | null = formData.profile.avatarFile;
+            if (avatarFile) {
+                const fileExt: string | undefined = avatarFile.name
+                    .split('.')
+                    .pop();
+                const fileName = `${uuidv4()}.${fileExt}`;
+                const filePath = `user-avatar/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('user-avatar')
+                    .upload(filePath, avatarFile);
+
+                if (uploadError) throw uploadError;
+
+                const { data: urlData } = supabase.storage
+                    .from('user-avatar')
+                    .getPublicUrl(filePath);
+
+                if (!urlData)
+                    throw new Error(
+                        'Failed to get public URL for user avatar.'
+                    );
+
+                avatarUrl = urlData.publicUrl;
+            }
+
+            // 3. 사용자 프로필 정보 저장.
+            const userInfo: UserInfo = {
+                user_id: authData.user.id,
+                avatar: avatarUrl,
+                service_terms: new Date(
+                    formData.terms.service_terms!
+                ).toISOString(),
+                privacy_policy: new Date(
+                    formData.terms.privacy_policy!
+                ).toISOString(),
+                marketing_consent: formData.terms.marketing_consent
+                    ? new Date(formData.terms.marketing_consent!).toISOString()
+                    : null,
+                nickname: formData.profile.nickname!,
+                industry: formData.profile.industry!,
+                job: formData.profile.job!,
+                country: formData.profile.country!,
+                region: formData.profile.region!,
+                introduction: formData.profile.introduction!,
+            };
+            const { error: userInfoError } = await supabase
+                .from('UserInfo')
+                .insert(userInfo);
+
+            if (userInfoError) {
+                throw userInfoError; // 사용자 정보 저장 중 에러 발생
+            }
+
+            toast.success('회원가입이 완료되었습니다.');
+            navigate('/login');
         } catch (error: any) {
             console.error(`회원가입 중 오류가 발생했습니다: ${error.message}`);
             throw new Error('회원가입 중 오류가 발생했습니다.');

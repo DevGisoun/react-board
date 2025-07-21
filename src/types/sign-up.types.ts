@@ -1,11 +1,13 @@
 export interface TermsData {
-    serviceTerms: number | null;
-    privacyPolicy: number | null;
-    marketingConsent: number | null;
+    service_terms: number | null;
+    privacy_policy: number | null;
+    marketing_consent: number | null;
 }
 
 export interface ProfileData {
     nickname: string;
+    avatarFile: File | null;
+    avatarUrl: string | null;
     industry: string;
     job: string;
     country: string;
@@ -16,7 +18,7 @@ export interface ProfileData {
 export interface AccountData {
     email: string;
     password: string;
-    confirmPassword: string;
+    confirm_password: string;
 }
 
 // 전체 회원가입 폼 데이터 구조

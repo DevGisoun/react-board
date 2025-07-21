@@ -5,6 +5,7 @@ import { BadgeCheck, MousePointerClick } from 'lucide-react';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
+import supabase from '@/lib/supabase';
 
 export interface HotTopicCardProps {
     topic: Topic;
@@ -17,9 +18,18 @@ function HotTopicCard({ topic }: HotTopicCardProps) {
 
     const [author, setAuthor] = useState<User>();
 
-    useEffect(() => {
-        console.log(topic);
-    }, []);
+    // const getAuthor = async (userId: string): Promise<any> => {
+    //     const user = await supabase.auth.admin.getUserById(userId);
+    //     console.log(user);
+    //     return user;
+    // };
+
+    // useEffect(() => {
+    //     console.log(topic);
+    //     getAuthor(topic.user_id).then((user) => {
+    //         console.log(user);
+    //     });
+    // }, []);
 
     return (
         <>

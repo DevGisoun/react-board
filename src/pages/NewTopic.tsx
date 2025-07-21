@@ -91,18 +91,15 @@ function NewTopicPage() {
                     .from('topic-files')
                     .upload(filePath, thumbnailFile);
 
-                if (uploadError) {
-                    throw uploadError;
-                }
+                if (uploadError) throw uploadError;
 
                 // 2. 업로드된 이미지의 Public URL 가져오기
                 const { data: urlData } = supabase.storage
                     .from('topic-files')
                     .getPublicUrl(filePath);
 
-                if (!urlData) {
+                if (!urlData)
                     throw new Error('Failed to get public URL for thumbnail.');
-                }
 
                 // Storage에 업로드된 파일의 URL 할당.
                 thumbnailUrl = urlData.publicUrl;

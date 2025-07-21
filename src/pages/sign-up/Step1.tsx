@@ -43,7 +43,7 @@ function SignUpStep1({ onNext, formData, updateFormData }: SignUpStep1Props) {
     });
 
     const handleNextStep = (_: z.infer<typeof formSchema>) => {
-        if (!formData.serviceTerms || !formData.privacyPolicy) {
+        if (!formData.service_terms || !formData.privacy_policy) {
             toast.warning('필수 약관에 동의해주세요.');
             return;
         }
@@ -94,13 +94,13 @@ function SignUpStep1({ onNext, formData, updateFormData }: SignUpStep1Props) {
                                                         defaultChecked
                                                         className="w-[18px] h-[18px]"
                                                         checked={
-                                                            !!formData.serviceTerms
+                                                            !!formData.service_terms
                                                         }
                                                         onCheckedChange={(
                                                             checked
                                                         ) =>
                                                             handleCheckboxChange(
-                                                                'serviceTerms',
+                                                                'service_terms',
                                                                 checked as boolean
                                                             )
                                                         }
@@ -137,13 +137,13 @@ function SignUpStep1({ onNext, formData, updateFormData }: SignUpStep1Props) {
                                                     defaultChecked
                                                     className="w-[18px] h-[18px]"
                                                     checked={
-                                                        !!formData.privacyPolicy
+                                                        !!formData.privacy_policy
                                                     }
                                                     onCheckedChange={(
                                                         checked
                                                     ) =>
                                                         handleCheckboxChange(
-                                                            'privacyPolicy',
+                                                            'privacy_policy',
                                                             checked as boolean
                                                         )
                                                     }
@@ -173,10 +173,10 @@ function SignUpStep1({ onNext, formData, updateFormData }: SignUpStep1Props) {
                                 <Checkbox
                                     defaultChecked
                                     className="w-[18px] h-[18px]"
-                                    checked={!!formData.marketingConsent}
+                                    checked={!!formData.marketing_consent}
                                     onCheckedChange={(checked) =>
                                         handleCheckboxChange(
-                                            'marketingConsent',
+                                            'marketing_consent',
                                             checked as boolean
                                         )
                                     }

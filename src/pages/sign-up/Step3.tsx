@@ -8,8 +8,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import supabase from '@/lib/supabase';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,13 +17,11 @@ import {
     FormControl,
     FormField,
     FormItem,
-    FormLabel,
     FormMessage,
 } from '@/components/ui/form';
 import { Eye, EyeOff } from 'lucide-react';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router';
 import type { SignUpStep3Props } from '@/types/sign-up.types';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
     email: z.email({
@@ -44,11 +41,10 @@ function SignUpStep3({
     updateFormData,
     handleSignUp,
 }: SignUpStep3Props) {
-    const navigate = useNavigate();
-
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showConfirmPassword, setShowConfirmPassword] =
         useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -65,6 +61,15 @@ function SignUpStep3({
             setShowConfirmPassword(!showPassword);
     };
 
+    const handleNextStep = async (values: z.infer<typeof formSchema>) => {
+        updateFormData(values);
+        setIsSubmitting(true);
+    };
+
+    useEffect(() => {
+        if (isSubmitting) handleSignUp().finally(() => setIsSubmitting(false));
+    }, [isSubmitting, formData]);
+
     return (
         <>
             <Card className="w-full max-w-100 gap-3 py-6">
@@ -76,9 +81,7 @@ function SignUpStep3({
                 </CardHeader>
                 <Form {...form}>
                     <form
-                        onSubmit={form.handleSubmit(
-                            (_: z.infer<typeof formSchema>) => handleSignUp()
-                        )}
+                        onSubmit={form.handleSubmit(handleNextStep)}
                         className="flex flex-col gap-3"
                     >
                         <CardContent className="grid gap-4 px-0 sm:px-6">
@@ -88,19 +91,12 @@ function SignUpStep3({
                                 render={({ field }) => {
                                     return (
                                         <FormItem>
-                                            <FormLabel>이메일</FormLabel>
+                                            <Label>이메일</Label>
                                             <FormControl>
                                                 <div className="flex flex-row gap-2">
                                                     <Input
                                                         {...field}
                                                         placeholder="이메일을 입력하세요."
-                                                        onChange={(e) =>
-                                                            updateFormData({
-                                                                email: e.target
-                                                                    .value,
-                                                            })
-                                                        }
-                                                        value={formData.email}
                                                     />
                                                     <Button className="cursor-pointer">
                                                         본인인증
@@ -117,7 +113,7 @@ function SignUpStep3({
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem className="relative">
-                                        <FormLabel>비밀번호</FormLabel>
+                                        <Label>비밀번호</Label>
                                         <FormControl>
                                             <Input
                                                 {...field}
@@ -127,13 +123,6 @@ function SignUpStep3({
                                                         : 'password'
                                                 }
                                                 placeholder="비밀번호를 입력하세요."
-                                                onChange={(e) =>
-                                                    updateFormData({
-                                                        password:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                value={formData.password}
                                             />
                                         </FormControl>
                                         <Button
@@ -159,7 +148,7 @@ function SignUpStep3({
                                 name="confirmPassword"
                                 render={({ field }) => (
                                     <FormItem className="relative">
-                                        <FormLabel>비밀번호 확인</FormLabel>
+                                        <Label>비밀번호 확인</Label>
                                         <FormControl>
                                             <Input
                                                 {...field}
@@ -169,13 +158,6 @@ function SignUpStep3({
                                                         : 'password'
                                                 }
                                                 placeholder="비밀번호 획인란을 입력하세요."
-                                                onChange={(e) =>
-                                                    updateFormData({
-                                                        confirmPassword:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                value={formData.confirmPassword}
                                             />
                                         </FormControl>
                                         <Button
@@ -204,6 +186,7 @@ function SignUpStep3({
                                     variant={'outline'}
                                     className="cursor-pointer"
                                     onClick={onPrev}
+                                    disabled={isSubmitting}
                                 >
                                     이전
                                 </Button>
@@ -211,8 +194,9 @@ function SignUpStep3({
                                     type="submit"
                                     variant={'destructive'}
                                     className="cursor-pointer"
+                                    disabled={isSubmitting}
                                 >
-                                    회원가입
+                                    {isSubmitting ? '가입 중...' : '회원가입'}
                                 </Button>
                             </div>
                             <div className="flex flex-row items-center justify-center gap-1 text-sm">

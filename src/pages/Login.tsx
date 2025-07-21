@@ -54,6 +54,7 @@ function LoginPage() {
     const handleToggle = () => setShowPassword((prev) => !prev);
 
     const handleSignIn = async (values: z.infer<typeof formSchema>) => {
+        console.log(values);
         const email = values.email;
         const password = values.password;
 
